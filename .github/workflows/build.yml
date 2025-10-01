@@ -86,13 +86,6 @@ jobs:
           workspaces: apd
           cache-targets: false
 
-      - name: Configure signing properties
-        run: |
-          echo "android.enableV1Signing=false" >> gradle.properties
-          echo "android.enableV2Signing=false" >> gradle.properties
-          echo "android.enableV3Signing=true" >> gradle.properties
-          echo "android.enableV4Signing=true" >> gradle.properties
-
       - name: Build with Gradle
         run: |
           echo 'org.gradle.parallel=true' >> gradle.properties
@@ -101,48 +94,23 @@ jobs:
           echo 'android.native.buildOutput=verbose' >> gradle.properties
           sed -i 's/org.gradle.configuration-cache=true//g' gradle.properties
           ./gradlew clean assembleRelease
+          echo "BUILD_TOOL_VERSION=$(ls /usr/local/lib/android/sdk/build-tools/ | tail -n 1)" >> $GITHUB_ENV
 
-      - name: Custom Sign APK (v3+v4 only)
+      - name: Sign Release
         env:
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          BUILD_TOOLS_VERSION: ${{ env.BUILD_TOOL_VERSION }}
         if: ${{ env.SIGNING_KEY != '' }}
         continue-on-error: true
-        run: |
-          # 创建临时密钥库文件
-          echo "$SIGNING_KEY" | base64 --decode > /tmp/keystore.jks
-          
-          # 查找未签名的 APK 文件
-          UNSIGNED_APK=$(find app/build/outputs/apk/release -name "*.apk" ! -name "*unsigned*" ! -name "*aligned*" | head -n 1)
-          if [ -z "$UNSIGNED_APK" ]; then
-            UNSIGNED_APK=$(find app/build/outputs/apk/release -name "*.apk" | head -n 1)
-          fi
-          
-          if [ -z "$UNSIGNED_APK" ]; then
-            echo "Error: No APK file found"
-            exit 1
-          fi
-          
-          echo "Found APK: $UNSIGNED_APK"
-          
-          # 使用 apksigner 进行 v3+v4 签名
-          $ANDROID_HOME/build-tools/$(ls $ANDROID_HOME/build-tools/ | tail -n1)/apksigner sign \
-            --ks /tmp/keystore.jks \
-            --ks-pass pass:${{ secrets.KEY_STORE_PASSWORD }} \
-            --key-pass pass:${{ secrets.KEY_PASSWORD }} \
-            --ks-key-alias ${{ secrets.ALIAS }} \
-            --v1-signing-enabled false \
-            --v2-signing-enabled false \
-            --v3-signing-enabled true \
-            --v4-signing-enabled true \
-            --out app/build/outputs/apk/release/app-signed-v3v4.apk \
-            "$UNSIGNED_APK"
-          
-          # 验证签名
-          $ANDROID_HOME/build-tools/$(ls $ANDROID_HOME/build-tools/ | tail -n1)/apksigner verify \
-            --verbose \
-            app/build/outputs/apk/release/app-signed-v3v4.apk
-          
-          echo "signedReleaseFile=app/build/outputs/apk/release/app-signed-v3v4.apk" >> $GITHUB_OUTPUT
+        uses: kevin-david/zipalign-sign-android-release@v2
+        id: sign_app
+        with:
+          releaseDirectory: app/build/outputs/apk/release
+          signingKeyBase64: ${{ secrets.SIGNING_KEY }}
+          alias: ${{ secrets.ALIAS }}
+          keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
+          zipAlign: true
 
       - name: Upload build artifact
         env:
@@ -150,20 +118,20 @@ jobs:
         if: ${{ env.SIGNING_KEY != '' }}
         uses: actions/upload-artifact@v4
         with:
-          name: APatch-v3v4-signed
+          name: APatch
           path: ${{steps.sign_app.outputs.signedReleaseFile}}
 
       - name: Create release body
         id: create_release_body
         run: |
           cat << EOF > release_body.md
+          # APatch 自动构建版本
           
           ## 构建信息
           - **版本号**: ${{ steps.parse_version.outputs.VERSION }}
           - **提交哈希**: ${{ steps.commit_info.outputs.COMMIT_HASH }}
           - **构建时间**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
           - **触发事件**: ${{ github.event_name }}
-    
           EOF
           
           # 读取文件内容到输出
