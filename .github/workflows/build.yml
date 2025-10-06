@@ -92,8 +92,11 @@ jobs:
           echo 'org.gradle.vfs.watch=true' >> gradle.properties
           echo 'org.gradle.jvmargs=-Xmx2048m' >> gradle.properties
           echo 'android.native.buildOutput=verbose' >> gradle.properties
+          # 只构建 ARM64
+          echo 'android.native.buildOnly=arm64-v8a' >> gradle.properties
           sed -i 's/org.gradle.configuration-cache=true//g' gradle.properties
-          ./gradlew clean assembleRelease
+          # 添加 ARM64 构建参数
+          ./gradlew clean assembleRelease -Pandroid.native.buildOnly=arm64-v8a
           echo "BUILD_TOOL_VERSION=$(ls /usr/local/lib/android/sdk/build-tools/ | tail -n 1)" >> $GITHUB_ENV
 
       - name: Sign Release
@@ -118,40 +121,5 @@ jobs:
         if: ${{ env.SIGNING_KEY != '' }}
         uses: actions/upload-artifact@v4
         with:
-          name: APatch
+          name: APatch-ARM64
           path: ${{steps.sign_app.outputs.signedReleaseFile}}
-
-      - name: Create release body
-        id: create_release_body
-        run: |
-          cat << EOF > release_body.md
-          # APatch 自动构建版本
-          
-          ## 构建信息
-          - **版本号**: ${{ steps.parse_version.outputs.VERSION }}
-          - **提交哈希**: ${{ steps.commit_info.outputs.COMMIT_HASH }}
-          - **构建时间**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
-          - **触发事件**: ${{ github.event_name }}
-          EOF
-          
-          # 读取文件内容到输出
-          RELEASE_BODY=$(cat release_body.md)
-          echo "RELEASE_BODY<<EOF" >> $GITHUB_OUTPUT
-          echo "$RELEASE_BODY" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-      - name: Release apk
-        env:
-          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
-        if: ${{ env.SIGNING_KEY != '' && github.ref_type == 'tag' }}
-        continue-on-error: true
-        uses: ncipollo/release-action@v1
-        with:
-          token: ${{ github.token }}
-          tag: ${{ steps.parse_version.outputs.VERSION }}
-          name: "APatch v${{ steps.parse_version.outputs.VERSION }}"
-          body: ${{ steps.create_release_body.outputs.RELEASE_BODY }}
-          artifacts: ${{steps.sign_app.outputs.signedReleaseFile}}
-          generateReleaseNotes: false
-          makeLatest: true
-          replacesArtifacts: true
