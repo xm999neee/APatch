@@ -30,6 +30,12 @@
     public static void throwUninitializedPropertyAccessException(...);  
 }
 
+-assumenosideeffects class android.util.Log {  
+    public static *** d(...);  
+    public static *** v(...);  
+    public static *** i(...);  
+}
+
 -allowaccessmodification
 -renamesourcefileattribute ""  
 -keepattributes !SourceFile,!LineNumberTable
