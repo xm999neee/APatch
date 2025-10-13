@@ -46,8 +46,6 @@ android {
             isDebuggable = false
             multiDexEnabled = true
             vcsInfo.include = false
-            android.enableR8=true
-            android.enableR8.fullMode=true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
