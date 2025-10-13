@@ -21,4 +21,3 @@
 }
 
 -allowaccessmodification
--renamesourcefileattribute SourceFile
