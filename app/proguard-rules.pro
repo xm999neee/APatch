@@ -20,4 +20,16 @@
     public static void throw*(...);
 }
 
+-assumenosideeffects class kotlin.jvm.internal.Intrinsics {  
+    public static void checkNotNull(...);  
+    public static void checkParameterIsNotNull(...);  
+    public static void checkNotNullParameter(...);  
+    public static void checkExpressionValueIsNotNull(...);  
+    public static void checkNotNullExpressionValue(...);  
+    public static void checkReturnedValueIsNotNull(...);  
+    public static void throwUninitializedPropertyAccessException(...);  
+}
+
 -allowaccessmodification
+-renamesourcefileattribute ""  
+-keepattributes !SourceFile,!LineNumberTable
