@@ -28,7 +28,7 @@ apksign {
 }
 
 android {
-    namespace = "xm.9se"
+    namespace = "neee.xm.9se"
 
     buildTypes {
         debug {
