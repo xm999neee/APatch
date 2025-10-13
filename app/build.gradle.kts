@@ -28,7 +28,7 @@ apksign {
 }
 
 android {
-    namespace = "neee.xm.9se"
+    namespace = "me.bmax.apatch"
 
     buildTypes {
         debug {
