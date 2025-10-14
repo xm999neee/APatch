@@ -131,37 +131,6 @@ jobs:
           
           echo "APK processing completed successfully!"
 
-      - name: Remove Debug Information
-        run: |
-          wget https://github.com/iBotPeaches/Apktool/releases/download/v2.12.1/apktool_2.12.1.jar -O /tmp/apktool.jar
-          
-          APK_FILE=$(find app/build/outputs/apk/release -name "*.apk" -type f | head -n 1)
-          
-          if [ -z "$APK_FILE" ]; then
-            echo "No APK file found!"
-            exit 1
-          fi
-          
-          echo "Decoding APK: $APK_FILE"
-          
-          java -jar /tmp/apktool.jar d "$APK_FILE" -o /tmp/decoded
-          
-          echo "Removing debug information from Smali files..."
-          
-          find /tmp/decoded -path "*/smali*" -name "*.smali" -exec sed -i '/^\.line /d; /^\.local /d; /^\.end local/d; /^\.source /d' {} \;
-          
-          echo "Rebuilding APK..."
-          
-          java -jar /tmp/apktool.jar b /tmp/decoded -o /tmp/rebuild.apk
-          
-          echo "Replacing original APK"
-          
-          mv /tmp/rebuild.apk "$APK_FILE"
-          
-          rm -rf /tmp/decoded
-          
-          echo "Debug information removed successfully!"
-
       - name: Sign Release
         env:
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
