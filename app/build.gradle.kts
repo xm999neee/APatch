@@ -48,6 +48,7 @@ android {
             vcsInfo.include = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-debuginfo-remove.pro",
                 "proguard-rules.pro"
             )
             ndk {  
