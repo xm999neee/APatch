@@ -36,7 +36,6 @@
     public static *** i(...);  
 }
 
--dontobfuscate
 -allowaccessmodification
 -renamesourcefileattribute ""  
 -keepattributes !SourceFile,!LineNumberTable
