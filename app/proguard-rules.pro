@@ -36,10 +36,16 @@
     public static *** i(...);  
 }
 
--keepclassmembers class **.R$* {
-    public static <fields>;
-}
-
+-dontobfuscate
 -allowaccessmodification
 -renamesourcefileattribute ""  
--keepattributes !SourceFile,!LineNumberTable
+-keepattributes !SourceFile,!LineNumberTable,Exceptions,Signature,InnerClasses,EnclosingMethod 
+-dontusemixedcaseclassnames
+-dontskipnonpubliclibraryclasses
+-dontpreverify
+-verbose
+-optimizations !code/simplification/arithmetic,!code/simplification/cast,!field/*,!class/merging/*
+-optimizationpasses 5
+-allowaccessmodification
+-mergeinterfacesaggressively
+-renamesourcefileattribute SourceFile
