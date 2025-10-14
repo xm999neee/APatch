@@ -36,6 +36,10 @@
     public static *** i(...);  
 }
 
+-keepclassmembers class **.R$* {
+    public static <fields>;
+}
+
 -allowaccessmodification
 -renamesourcefileattribute ""  
 -keepattributes !SourceFile,!LineNumberTable
