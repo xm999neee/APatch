@@ -11,7 +11,7 @@ plugins {
     alias(libs.plugins.kotlin.compose.compiler)
     alias(libs.plugins.ksp)
     alias(libs.plugins.lsplugin.apksign)
-  //  alias(libs.plugins.lsplugin.resopt)
+    alias(libs.plugins.lsplugin.resopt)
     alias(libs.plugins.lsplugin.cmaker)
     id("kotlin-parcelize")
 }
@@ -42,7 +42,7 @@ android {
         }
         release {
             isMinifyEnabled = true
-            isShrinkResources = false
+            isShrinkResources = true
             isDebuggable = false
             multiDexEnabled = true
             vcsInfo.include = false
