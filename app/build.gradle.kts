@@ -11,7 +11,7 @@ plugins {
     alias(libs.plugins.kotlin.compose.compiler)
     alias(libs.plugins.ksp)
     alias(libs.plugins.lsplugin.apksign)
-    alias(libs.plugins.lsplugin.resopt)
+  //  alias(libs.plugins.lsplugin.resopt)
     alias(libs.plugins.lsplugin.cmaker)
     id("kotlin-parcelize")
 }
