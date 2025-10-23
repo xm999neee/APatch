@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="apm">magiskModule</string>
+    <string name="apm">magiskmodule</string>
     <string name="super_key">超级密钥</string>
     <string name="app_name" translatable="false">APatch</string>
     <string name="kpm">kernelpatch</string>
